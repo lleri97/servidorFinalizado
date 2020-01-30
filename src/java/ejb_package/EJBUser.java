@@ -67,7 +67,7 @@ public class EJBUser implements EJBUserInterface {
                 //cargamos la nueva
                 EncryptionServerClass encryp = new EncryptionServerClass();
                 String notEncodedPassword = encryp.decryptText(user.getPassword());
-            
+
                 String passwordHashDB = encryp.hashingText(notEncodedPassword);
                 user.setPassword(passwordHashDB);
                 LocalDateTime localDate = LocalDateTime.now();
@@ -241,20 +241,19 @@ public class EJBUser implements EJBUserInterface {
         } catch (Exception e) {
             throw new CreateException(e.getMessage());
         }
+        MailSender emailService = new MailSender(ResourceBundle.getBundle("files.MailSenderConfig").getString("SenderName"),
+                ResourceBundle.getBundle("files.MailSenderConfig").getString("SenderPassword"), null, null);
         try {
-            MailSender emailService = new MailSender(ResourceBundle.getBundle("files.MailSenderConfig").getString("SenderName"),
-                    ResourceBundle.getBundle("files.MailSenderConfig").getString("SenderPassword"), null, null);
             emailService.sendMail(ResourceBundle.getBundle("files.MailSenderConfig").getString("SenderEmail"),
                     user.getEmail(),
                     ResourceBundle.getBundle("files.MailSenderConfig").getString("NewUserMessageSubject"),
                     ResourceBundle.getBundle("files.MailSenderConfig").getString("NewUserMessageEmail1")
                     + "" + notHashPassword
                     + ResourceBundle.getBundle("files.MailSenderConfig").getString("NewUserMessageEmail2"));
-            System.out.println("Ok, mail sent!");
-        } catch (MessagingException e) {
-            System.out.println("Doh!");
-            throw new MessagingException();
+        } catch (Exception ex) {
+            Logger.getLogger(EJBUser.class.getName()).log(Level.SEVERE, null, ex);
         }
+        System.out.println("Ok, mail sent!");
     }
 
     /**
@@ -264,7 +263,7 @@ public class EJBUser implements EJBUserInterface {
      */
     public void disabledUserByCompany(int company_id) throws UpdateException {
         try {
-            
+
             Query q1 = em.createQuery("update User a set a.status='DISABLED',a.company.id=NULL where a.company.id=:company_id");
             q1.setParameter("company_id", company_id);
             q1.executeUpdate();

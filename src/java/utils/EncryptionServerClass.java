@@ -77,7 +77,7 @@ public class EncryptionServerClass {
      * @param mensaje El mensaje a descifrar
      * @return El mensaje descifrado
      */
-    public String decryptText(String encryptedMessage) {
+    public static String decryptText(String encryptedMessage) {
         String message = null;
         try {
             InputStream in = null;
