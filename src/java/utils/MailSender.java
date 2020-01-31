@@ -29,9 +29,9 @@ import javax.mail.internet.MimeMultipart;
  */
 public class MailSender {
 
-    private String userPath = ResourceBundle.getBundle("grupo5_Server.utils.MailSenderConfig").getString("SenderName");
-    private String emailPath = ResourceBundle.getBundle("grupo5_Server.utils.MailSenderConfig").getString("SenderEmail");
-    private String passPath = ResourceBundle.getBundle("grupo5_Server.utils.MailSenderConfig").getString("SenderPassword");
+    private String userPath = ResourceBundle.getBundle("files.MailSenderConfig").getString("SenderName");
+    private String emailPath = ResourceBundle.getBundle("files.MailSenderConfig").getString("SenderEmail");
+    private String passPath = ResourceBundle.getBundle("files.MailSenderConfig").getString("SenderPassword");
 // Server mail user & pass
     private String user = null;
     private String pass = null;
