@@ -40,22 +40,25 @@ import utils.EncryptionServerClass;
 
 /**
  *
- * @author Fran
+ * @author Francisco Romero Alonso
  */
 @Stateless
 public class EJBUser implements EJBUserInterface {
+    
+    private static final Logger LOGGER = Logger.getLogger(EJBUser.class.getPackage() + "." + EJBUser.class.getName());
 
     @PersistenceContext(unitName = "grupo5_ServerPU")
     private EntityManager em;
 
-    /**
-     *
-     * @param user
-     * @throws UpdateException
-     */
+/**
+ * Este metodo modifica un usuario dado en la base de datos
+ * @param user El usuario con los nuevos datos
+ * @throws UpdateException Si la modificación falla
+ */
     @Override
     public void updateUser(User user) throws UpdateException {
         try {
+            LOGGER.info("Iniciando modificación de usuario.");
             if (user.getPassword().equalsIgnoreCase("")) {
                 //sacar contraseña de la base de datos y cargar la que tenia
                 Query q1 = em.createQuery("Select a from User a where a.id=:id");
@@ -76,48 +79,55 @@ public class EJBUser implements EJBUserInterface {
             }
             checkLoginAndEmail(user);
             em.merge(user);
+            LOGGER.info("Usuario modificaco con exito.");
         } catch (Exception e) {
-            throw new UpdateException();
+            throw new UpdateException("Error al modificar el usuario.");
         }
     }
 
     /**
-     *
-     * @param id
-     * @return
-     * @throws SelectException
+     * Este metodo busca un usuario por id
+     * @param id La id del usuario a buscar
+     * @return Retorna el usuario con todos los datos
+     * @throws SelectException Si falla la busqueda del usuario
      */
     public User findUserById(int id) throws SelectException {
         User ret = null;
         try {
+            LOGGER.info("Buscando perfil de usuario por id.");
             ret = (User) em.createNamedQuery("findById").setParameter("id", id).getSingleResult();
         } catch (NoResultException e) {
-            throw new SelectException();
+            throw new SelectException("Error al buscar el usuario por id.");
         }
+        LOGGER.info("Perfil cargado con éxito.");
         return ret;
     }
 
-    /**
-     *
-     * @param user
-     * @return
-     * @throws LoginException
-     * @throws LoginPasswordException
-     * @throws DisabledUserException
-     */
+   /**
+    * Metodo para comprobar credenciales al iniciar sesión
+    * @param user Usuario que contiene la contraseña y el login a comprobar
+    * @return Retorna el usuario con todos los datos cargados en caso de exito
+    * @throws LoginException Si el login introducido no existe
+    * @throws LoginPasswordException Si la contraseña introducida no es correta
+    * @throws DisabledUserException Si el usuario está deshabilitado
+    */
     @Override
     public User login(User user) throws LoginException, LoginPasswordException, DisabledUserException {
         User ret = new User();
         try {
-
+            LOGGER.info("Iniciando comprobación de credenciales.");
             EncryptionServerClass encryp = new EncryptionServerClass();
+            LOGGER.info("Desencriptando contraseña");
             String notEncodedPassword = encryp.decryptText(user.getPassword());
+            LOGGER.info("Contraseña desencriptada con exito");
             ret = checkUserbyLogin(user);
 
             UserStatus x = ret.getStatus();
             if (x == UserStatus.ENABLED) {
+                LOGGER.info("Usuario habilitado, continuando con la comprobación de credenciales.");
                 try {
                     ret = (User) em.createNamedQuery("findByLoginAndPassword").setParameter("login", user.getLogin()).setParameter("password", encryp.hashingText(notEncodedPassword)).getSingleResult();
+                    LOGGER.info("La contraseña introducida es correcta.");
                 } catch (Exception e) {
                     throw new LoginPasswordException("La contraseña es incorrecta.");
                 }
@@ -127,29 +137,32 @@ public class EJBUser implements EJBUserInterface {
             Query q1 = em.createQuery("update User a set a.lastAccess=:dateNow where a.id=:user_id");
             LocalDateTime localDate = LocalDateTime.now();
             Date date = Date.from(localDate.atZone(ZoneId.systemDefault()).toInstant());
-
             q1.setParameter("dateNow", date);
             q1.setParameter("user_id", ret.getId());
+            LOGGER.info("Actualizando fecha de ultimo acceso en la base de datos.");
             q1.executeUpdate();
             String passwordHashDB = encryp.hashingText(user.getPassword());
             user.setPassword(passwordHashDB);
 
         } catch (Exception ex) {
-            Logger.getLogger(EJBUser.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.info("ERROR al hacer login : " + ex.getMessage());
         }
         return ret;
     }
 
-    /**
-     *
-     * @return @throws GetCollectionException
-     */
+   /**
+    * Metodo que devuelve una lista con los usuarios existentes
+    * @return La lista que contiene los usuarios de la base de datos
+    * @throws GetCollectionException Si falla al hacer la busqueda y cargar los usuarios
+    */
     @Override
     public Set<User> getUserList() throws GetCollectionException {
         List<User> listUser = null;
         try {
+            LOGGER.info("Buscando usuarios en la base de datos.");
             listUser = em.createNamedQuery("findAllUsers").getResultList();
         } catch (Exception ex) {
+            LOGGER.warning("Error al buscar usuarios en la base de datos");
             throw new GetCollectionException(ex.getMessage());
         }
         Set<User> ret = new HashSet<User>(listUser);
@@ -157,19 +170,21 @@ public class EJBUser implements EJBUserInterface {
     }
 
     /**
-     *
-     * @param user
-     * @throws RecoverPasswordException
+     * Metodo para recuperar contraseña de usuario mediante correo electronico
+     * @param user Usuario que contiene el correo electronico
+     * @throws RecoverPasswordException Si falla la recuperación de contraseña
      */
     @Override
     public void recoverPassword(User user) throws RecoverPasswordException {
         try {
             EncryptionServerClass hash = new EncryptionServerClass();
+            LOGGER.info("Recuperando contraseña encriptada desde la base de datos.");
             String passwordHashDB = (String) em.createNamedQuery("recoverPassword")
                     .setParameter("email", user.getEmail()).getSingleResult();
             //generamos nueva contraseña
+            LOGGER.info("Generando nueva contraseña.");
             String notEncodedNew = generatePassword();
-
+            LOGGER.info("Codificando contraseña generada.");
             passwordHashDB = hash.hashingText(notEncodedNew);
             user.setPassword(passwordHashDB);
 
@@ -177,59 +192,70 @@ public class EJBUser implements EJBUserInterface {
             MailSender emailService = new MailSender(ResourceBundle.getBundle("files.MailSenderConfig").getString("SenderName"),
                     ResourceBundle.getBundle("files.MailSenderConfig").getString("SenderPassword"), null, null);
             try {
+                LOGGER.info("Enviando email con la nueva contraseña al usuario.");
                 emailService.sendMail(ResourceBundle.getBundle("files.MailSenderConfig").getString("SenderEmail"),
                         user.getEmail(),
                         ResourceBundle.getBundle("files.MailSenderConfig").getString("MessageSubject"),
                         ResourceBundle.getBundle("files.MailSenderConfig").getString("MessageEmail1")
                         + notEncodedNew
                         + ResourceBundle.getBundle("files.MailSenderConfig").getString("MessageEmail2"));
-                System.out.println("Ok, mail sent!");
+                LOGGER.info("Contraseña enviada con exito.");
             } catch (MessagingException ex) {
+                LOGGER.warning("Fallo al enviar contraseña.");
                 throw new RecoverPasswordException(ex.getMessage());
             }
             //actualizamos en la base de datos
+            LOGGER.info("Actualizando la base de datos con la nueva contraseña.");
             Query q1 = em.createQuery("update User a set a.password=:password where a.email=:email");
             q1.setParameter("password", passwordHashDB);
             q1.setParameter("email", user.getEmail());
             q1.executeUpdate();
+            LOGGER.info("Recuperación de contraseña realizada con exito.");
         } catch (Exception ex) {
-            throw new RecoverPasswordException(ex.getMessage());
+            throw new RecoverPasswordException("Error al recuperar contraseña: " + ex.getMessage());
         }
     }
 
     /**
-     *
-     * @param user
-     * @throws DeleteException
+     * Metodo que elimina un usuario de la base de datos
+     * @param user Usuario que será eliminado de la bse de datos
+     * @throws DeleteException Si falla el borrado del usuario
      */
     @Override
     public void deleteUser(User user) throws DeleteException {
         try {
+            LOGGER.info("Borrando usuario");
             Query q1 = em.createNamedQuery("DeleteUser").setParameter("id", user.getId());
             q1.executeUpdate();
             em.flush();
+            LOGGER.info("Usuario borrado con exito.");
         } catch (Exception ex) {
-            throw new DeleteException(ex.getMessage());
+            throw new DeleteException("Error al borrar usuario: " + ex.getMessage());
         }
     }
 
     /**
-     *
-     * @param user
-     * @throws CreateException
+     * Metodo que crea un nuevo registro de usuario en la base de datos
+     * @param user Usuario que será creado
+     * @throws CreateException Si falla al introducir los datos en l abase de datos
+     * @throws UpdateException Si el email o login ya existen en la base de datos
+     * @throws MessagingException Si falla el envío de las credenciales al usuario por email
      */
     @Override
     public void createUser(User user) throws CreateException, UpdateException, MessagingException {
         try {
+            LOGGER.info("Comprobando login y email con la base de datos.");
             checkLoginAndEmail(user);
         } catch (UpdateException ex) {
-            Logger.getLogger(EJBUser.class.getName()).log(Level.SEVERE, null, ex);
-            throw new UpdateException();
+            LOGGER.warning("El login/Email ya existen.");
+            throw new UpdateException(ex.getMessage());
         }
+        LOGGER.info("Encriptando contraseña.");
         EncryptionServerClass hash = new EncryptionServerClass();
         String notHashPassword = generatePassword();
         String hashPassword = hash.hashingText(notHashPassword);
         user.setPassword(hashPassword);
+        LOGGER.info("Guardando usuario en la base de datos.");
         try {
             byte[] photo = user.getPhoto();
             user.setPhoto(null);
@@ -238,12 +264,15 @@ public class EJBUser implements EJBUserInterface {
             q1.setParameter("photo", photo);
             q1.setParameter("id", user.getId());
             q1.executeUpdate();
+            LOGGER.info("Usuario guardado en la base de datos con exito");
         } catch (Exception e) {
+            LOGGER.warning("Error al introducir nuevo usuario en la base de datos.");
             throw new CreateException(e.getMessage());
         }
         MailSender emailService = new MailSender(ResourceBundle.getBundle("files.MailSenderConfig").getString("SenderName"),
                 ResourceBundle.getBundle("files.MailSenderConfig").getString("SenderPassword"), null, null);
         try {
+            LOGGER.info("Enviando email con contraseña al nuevo usuario.");
             emailService.sendMail(ResourceBundle.getBundle("files.MailSenderConfig").getString("SenderEmail"),
                     user.getEmail(),
                     ResourceBundle.getBundle("files.MailSenderConfig").getString("NewUserMessageSubject"),
@@ -251,30 +280,32 @@ public class EJBUser implements EJBUserInterface {
                     + "" + notHashPassword
                     + ResourceBundle.getBundle("files.MailSenderConfig").getString("NewUserMessageEmail2"));
         } catch (Exception ex) {
+            LOGGER.severe("Fallo al enviar el email");
             Logger.getLogger(EJBUser.class.getName()).log(Level.SEVERE, null, ex);
         }
-        System.out.println("Ok, mail sent!");
+        LOGGER.info("Email enviado con exito");
     }
 
     /**
-     *
-     * @param company_id
-     * @throws UpdateException
+     * Metodo usado para deshabilitar los usuarios de una compañia borrada
+     * @param company_id compañia que ha sido borrada
+     * @throws UpdateException Si falla el proceso de update
      */
     public void disabledUserByCompany(int company_id) throws UpdateException {
         try {
-
+            LOGGER.info("Actualizando status de usuario.");
             Query q1 = em.createQuery("update User a set a.status='DISABLED',a.company.id=NULL where a.company.id=:company_id");
             q1.setParameter("company_id", company_id);
             q1.executeUpdate();
         } catch (Exception ex) {
             throw new UpdateException(ex.getMessage());
         }
+        LOGGER.info("Usuario actualizado con exito.");
     }
 
     /**
-     *
-     * @return
+     * Metodo que genera una nueva contraseña aleatoria
+     * @return Una nueva contraseña
      */
     private String generatePassword() {
         Random random = new Random();
@@ -283,32 +314,32 @@ public class EJBUser implements EJBUserInterface {
         for (int i = 0; i < 8; i++) {
             notEncodedNew.append(alphabet.charAt(random.nextInt(alphabet.length())));
         }
-//String notEncodedNew = new Random().ints(10, 33, 122).collect(StringBuilder::new,
-        //StringBuilder::appendCodePoint, StringBuilder::append)
-        // .toString();
+
         return new String(notEncodedNew);
     }
 
     /**
-     *
-     * @param user
-     * @return
-     * @throws LoginException
+     * Metodo que comprueba si un login existe en la base de datos
+     * @param user usuario con el login a comprobar
+     * @return Retorna el usuario si el login existe
+     * @throws LoginException Si no existe
      */
     private User checkUserbyLogin(User user) throws LoginException {
+        LOGGER.info("Comprobando que el login existe en la base de datos.");
         User ret = new User();
         try {
             ret = (User) em.createNamedQuery("findByLogin").setParameter("login", user.getLogin()).getSingleResult();
         } catch (NoResultException e) {
             throw new LoginException("El login no existe.");
         }
+        LOGGER.info("El login existe.");
         return ret;
     }
 
     /**
-     *
-     * @param user
-     * @throws UpdateException
+     * Metodo que comprueba credenciales estan repetidos
+     * @param user usuario con login y contrasña que van a comprobarse
+     * @throws UpdateException Si el login o contraseña estan repetidos
      */
     private void checkLoginAndEmail(User user) throws UpdateException {
         Long comparador = new Long(0);
@@ -330,6 +361,11 @@ public class EJBUser implements EJBUserInterface {
         }
     }
 
+    /**
+     * Metodo para enviar la clave publica al cliente que lo solicite
+     * @return Retorna un string con la clave publica
+     * @throws GenericServerException Si hay un fallo al recuperar la clave publica
+     */
     @Override
     public String getPublicKey() throws GenericServerException {
         String publicKey = "";

@@ -32,30 +32,33 @@ public class EJBDepartment implements EJBDepartmentInterface {
     private EntityManager em;
 
     /**
+     * Metodo que crea un Departmento
      *
-     * @param depart
+     * @param depart objeto de tipo Department
+     * @throws CreateException si no se puede crear
      */
     public void createDepartment(Department depart) throws CreateException {
         em.persist(depart);
     }
 
-    /**
-     *
-     * @param depart
+      /**
+     * Metodo para actualizar un departamneto
+     * @param depart objeto del tipo Department
+     * @throws UpdateException si no se puede actualizar
      */
     public void updateDepartment(Department depart) throws UpdateException {
-        Department department= new Department();
-        department=em.find(Department.class, depart.getId());
+        Department department = new Department();
+        department = em.find(Department.class, depart.getId());
         department.setAreas(depart.getAreas());
         department.setCompanies(depart.getCompanies());
         department.setName(depart.getName());
         em.merge(department);
         em.flush();
     }
-
     /**
-     *
-     * @param depart
+     * Metodo de borrado de departamento por id
+     * @param id Id del Departamento
+     * @throws DeleteException si no se encuentra el departamento
      */
     public void deleteDepartment(int id) throws DeleteException {
         try {
@@ -68,9 +71,10 @@ public class EJBDepartment implements EJBDepartmentInterface {
         }
     }
 
-    /**
-     *
-     * @return @throws exceptions.GetCollectionException
+       /**
+     * Metodo que devuelve una lista se departamentos
+     * @return lista de Department
+      * @throws GetCollectionException Si no hay departamentos en la base de datos
      */
     public Set<Department> getDepartmentList() throws GetCollectionException {
         List<Department> listDepartment = null;
@@ -82,7 +86,12 @@ public class EJBDepartment implements EJBDepartmentInterface {
         Set<Department> ret = new HashSet<Department>(listDepartment);
         return ret;
     }
-
+      /**
+     * Metodo de obtencion de un departamento
+     * @param id Id de dicho departamento
+     * @return un objeto del tipo Department
+     * @throws SelectException Si no existe el departamento
+     */
     @Override
     public Department getDepartmentProfile(int id) throws SelectException {
         try {

@@ -35,6 +35,12 @@ public class EJBDocument implements EJBDocumentInterface {
     @PersistenceContext(unitName = "grupo5_ServerPU")
     private EntityManager em;
 
+    /**
+     * Metodo de obtencion de una lista de documentos
+     *
+     * @return retorna la lista de todos los documentos
+     * @throws GetCollectionException si no hay datos que sacar
+     */
     public Set<Document> getDocumentList() throws GetCollectionException {
         List<Document> listDocument = null;
         try {
@@ -46,6 +52,13 @@ public class EJBDocument implements EJBDocumentInterface {
         return ret;
     }
 
+    /**
+     * Metodo que encuentra un documento por su id
+     *
+     * @param id Id del documento
+     * @return un documetno con toda su informacion y contenido
+     * @throws SelectException Si no existe el documento
+     */
     public Document findDocumentById(int id) throws SelectException {
         Document ret = null;
         try {
@@ -56,6 +69,12 @@ public class EJBDocument implements EJBDocumentInterface {
         return ret;
     }
 
+    /**
+     * Metodo de creacion de un documento
+     *
+     * @param document objeto del tipo Document
+     * @throws CreateException Si no se pudo hacer persistente el documento
+     */
     @Override
     public void createNewDocument(Document document) throws CreateException {
         try {
@@ -68,6 +87,13 @@ public class EJBDocument implements EJBDocumentInterface {
         }
     }
 
+    /**
+     * Metodo de actualizacion de documento
+     *
+     * @param document Objeto del tipo document
+     * @throws UpdateException si no se puede modificar
+     * 
+     */
     public void updateDocument(Document document) throws UpdateException {
         try {
             em.merge(document);
@@ -76,7 +102,12 @@ public class EJBDocument implements EJBDocumentInterface {
             throw new UpdateException(ex.getMessage());
         }
     }
-
+    /**
+     * Metodo de actualizacion de documento
+     *
+     * @param user_id Objeto del tipo int
+     * @throws UpdateException si no se puede modificar
+     */
     public void updateDocumentByUser(int user_id) throws UpdateException {
         try {
             Query q = em.createQuery("Update Document a set a.user.id=1 where a.user.id=:user_id");
@@ -87,6 +118,12 @@ public class EJBDocument implements EJBDocumentInterface {
         }
     }
 
+    /**
+     * Metodo rest que borra un documento
+     *
+     * @param document documento a borrar
+     * @throws DeleteException si no se puede borrar
+     */
     public void deleteDocument(Document document) throws DeleteException {
         try {
             Query q1 = em.createQuery("delete from Document a where a.id=:id");

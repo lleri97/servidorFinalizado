@@ -134,7 +134,7 @@ public class User implements Serializable {
 
     /**
      *
-     * @return
+     * @return id de usuario
      */
     public int getId() {
         return id;
@@ -142,7 +142,7 @@ public class User implements Serializable {
 
     /**
      *
-     * @param id
+     * @param id del tipo int
      */
     public void setId(int id) {
         this.id = id;
@@ -150,7 +150,7 @@ public class User implements Serializable {
 
     /**
      *
-     * @return
+     * @return login
      */
     public String getLogin() {
         return login;
@@ -158,7 +158,7 @@ public class User implements Serializable {
 
     /**
      *
-     * @param login
+     * @param login del tipo string
      */
     public void setLogin(String login) {
         this.login = login;
@@ -166,7 +166,7 @@ public class User implements Serializable {
 
     /**
      *
-     * @return
+     * @return el email
      */
     public String getEmail() {
         return email;
@@ -174,7 +174,7 @@ public class User implements Serializable {
 
     /**
      *
-     * @param email
+     * @param email tipo string
      */
     public void setEmail(String email) {
         this.email = email;
@@ -182,7 +182,7 @@ public class User implements Serializable {
 
     /**
      *
-     * @return
+     * @return nombre completo
      */
     public String getFullname() {
         return fullname;
@@ -190,7 +190,7 @@ public class User implements Serializable {
 
     /**
      *
-     * @param fullname
+     * @param fullname tipo string
      */
     public void setFullname(String fullname) {
         this.fullname = fullname;
@@ -198,7 +198,7 @@ public class User implements Serializable {
 
     /**
      *
-     * @return
+     * @return company
      */
     public Company getCompany() {
         return company;
@@ -206,7 +206,7 @@ public class User implements Serializable {
 
     /**
      *
-     * @param company
+     * @param company tipo company
      */
     public void setCompany(Company company) {
         this.company = company;
@@ -214,7 +214,7 @@ public class User implements Serializable {
 
     /**
      *
-     * @return
+     * @return lista de documentos
      */
     public Set<Document> getDocuments() {
         return documents;
@@ -222,7 +222,7 @@ public class User implements Serializable {
 
     /**
      *
-     * @param documents
+     * @param documents lista de documentos
      */
     public void setDocuments(Set<Document> documents) {
         this.documents = documents;
@@ -230,7 +230,7 @@ public class User implements Serializable {
 
     /**
      *
-     * @return
+     * @return status
      */
     public UserStatus getStatus() {
         return status;
@@ -238,7 +238,7 @@ public class User implements Serializable {
 
     /**
      *
-     * @param status
+     * @param status de tipo userstatus
      */
     public void setStatus(UserStatus status) {
         this.status = status;
@@ -246,7 +246,7 @@ public class User implements Serializable {
 
     /**
      *
-     * @return
+     * @return privilegios
      */
     public UserPrivilege getPrivilege() {
         return privilege;
@@ -254,7 +254,7 @@ public class User implements Serializable {
 
     /**
      *
-     * @param privilege
+     * @param privilege tipo userprivilege
      */
     public void setPrivilege(UserPrivilege privilege) {
         this.privilege = privilege;
@@ -262,7 +262,7 @@ public class User implements Serializable {
 
     /**
      *
-     * @return
+     * @return contraseña
      */
     public String getPassword() {
         return password;
@@ -270,7 +270,7 @@ public class User implements Serializable {
 
     /**
      *
-     * @param password
+     * @param password tipo string
      */
     public void setPassword(String password) {
         this.password = password;
@@ -278,7 +278,7 @@ public class User implements Serializable {
 
     /**
      *
-     * @return
+     * @return ultimo acceso
      */
     public Date getLastAccess() {
         return lastAccess;
@@ -286,7 +286,7 @@ public class User implements Serializable {
 
     /**
      *
-     * @param lastAccess
+     * @param lastAccess tipo date
      */
     public void setLastAccess(Date lastAccess) {
         this.lastAccess = lastAccess;
@@ -294,7 +294,7 @@ public class User implements Serializable {
 
     /**
      *
-     * @return
+     * @return ultimo cambio de contraseña
      */
     public Date getLastPassWordChange() {
         return lastPassWordChange;
@@ -302,7 +302,7 @@ public class User implements Serializable {
 
     /**
      *
-     * @param lastPassWordChange
+     * @param lastPassWordChange ultimo cambio de contraseña
      */
     public void setLastPassWordChange(Date lastPassWordChange) {
         this.lastPassWordChange = lastPassWordChange;
@@ -318,7 +318,7 @@ public class User implements Serializable {
 
     /**
      *
-     * @return
+     * @return foto
      */
     public byte[] getPhoto() {
         return photo;
@@ -326,7 +326,7 @@ public class User implements Serializable {
 
     /**
      *
-     * @param photo
+     * @param photo tipo byte array
      */
     public void setPhoto(byte[] photo) {
         this.photo = photo;
@@ -334,7 +334,7 @@ public class User implements Serializable {
 
     /**
      *
-     * @return
+     * @return el hash
      */
     @Override
     public int hashCode() {
@@ -345,8 +345,8 @@ public class User implements Serializable {
 
     /**
      *
-     * @param object
-     * @return
+     * @param object tipo object
+     * @return boleano
      */
     @Override
     public boolean equals(Object object) {
@@ -363,7 +363,7 @@ public class User implements Serializable {
 
     /**
      *
-     * @return
+     * @return id de usuario
      */
     @Override
     public String toString() {

@@ -29,70 +29,116 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 /**
+ * Clase Rest de documentos
  *
- * @author 2dam
+ * @author Ruben
  */
 @Path("document")
 public class DocumentFacadeREST {
 
+    private static final Logger LOGGER = Logger.getLogger(DocumentFacadeREST.class.getPackage() + "." + DocumentFacadeREST.class.getName());
+
     @EJB(beanName = "EJBDocument")
     private EJBDocumentInterface ejb;
 
+    /**
+     * Metodo Rest de creacion de un documento
+     *
+     * @param document objeto del tipo Document
+     * @throws InternalServerErrorException .Si no se pudo hacer persistente el
+     * documento
+     */
     @POST
     @Consumes({MediaType.APPLICATION_XML})
-    public void createNewDocument(Document document) {
+    public void createNewDocument(Document document) throws InternalServerErrorException {
+        LOGGER.info("Peticion para creacion de documento recibida");
+
         try {
             ejb.createNewDocument(document);
         } catch (CreateException ex) {
-            Logger.getLogger(DocumentFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.warning("ERROR a la hora de crear documento");
+            throw new InternalServerErrorException();
         }
     }
 
+    /**
+     * Metodo Rest de actualizacion de documento
+     *
+     * @param document Objeto del tipo document
+     */
     @PUT
     @Consumes({MediaType.APPLICATION_XML})
-    public void updateDocument(Document document) {
+    public void updateDocument(Document document) throws InternalServerErrorException {
+        LOGGER.info("Peticion de actualizacion de documento");
         try {
             ejb.updateDocument(document);
         } catch (UpdateException ex) {
-            Logger.getLogger(DocumentFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.warning("ERROR a la hora de actualizar un documento");
+            throw new InternalServerErrorException();
         }
     }
 
+    /**
+     * Metodo rest que borra un documento
+     *
+     * @param id Id del documento
+     */
     @DELETE
     @Path("{id}")
-    public void remove(@PathParam("id") Integer id) {
+    public void remove(@PathParam("id") Integer id) throws InternalServerErrorException {
+        LOGGER.info("Peticion de borrado de documento");
         Document document = new Document();
         document.setId(id);
         try {
             ejb.deleteDocument(document);
         } catch (DeleteException ex) {
-            Logger.getLogger(DocumentFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
-        }
+            LOGGER.warning("ERROR a la hora de borrar un documento");
+            throw new InternalServerErrorException("Erro al borrar el documento");
     }
+}
 
-    @GET
-    @Path("{id}")
-    @Produces({MediaType.APPLICATION_XML})
-    public Document find(@PathParam("id") int id) throws InternalServerErrorException {
+/**
+ * Metodo rest que encuentra un documento por su id
+ *
+ * @param id Id del documento
+ * @return un documetno con toda su informacion y contenido
+ * @throws InternalServerErrorException .Si no existe el documento
+ */
+@GET
+        @Path("{id}")
+        @Produces({MediaType.APPLICATION_XML})
+        public Document find(@PathParam("id") int id) throws InternalServerErrorException {
+        
+        LOGGER.info("Peticion de busqueda de un documento");
         Document ret = null;
         try {
             ret = ejb.findDocumentById(id);
         } catch (SelectException e) {
+            LOGGER.warning("El documento no existe");
             throw new InternalServerErrorException("No existe documento con esta id en la base de datos.");
         }
+        LOGGER.info("Respueesta de busqueda correcta");
         return ret;
     }
 
+    /**
+     * Metodo de obtencion de una lista de documentos
+     *
+     * @return retorna la lista de todos los documentos
+     */
     @GET
-    @Produces({MediaType.APPLICATION_XML})
-    public Set<Document> findAll() {
+        @Produces({MediaType.APPLICATION_XML})
+        public Set<Document> findAll() throws InternalServerErrorException{
+        LOGGER.info("Peticion de todos los documentos");
         Set<Document> collection = null;
         try {
             collection = ejb.getDocumentList();
         } catch (GetCollectionException ex) {
-            Logger.getLogger(DocumentFacadeREST.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.warning("ERROR en la obtencion de la lista de documentos");
+            throw new InternalServerErrorException();
         }
+        LOGGER.info("Respuesta de obtencion de lista de documentos");
         return collection;
     }
-
+    
 }

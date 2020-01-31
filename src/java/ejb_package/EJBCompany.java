@@ -30,6 +30,13 @@ public class EJBCompany implements EJBCompanyInterface {
     @PersistenceContext(unitName = "grupo5_ServerPU")
     private EntityManager em;
 
+    /**
+     * Metodo que crea una compañia
+     *
+     * @param company objeto del tipo Company
+     *
+     * @throws CreateException si no se puede crear
+     */
     @Override
     public void createCompany(Company company) throws CreateException {
         try {
@@ -39,11 +46,17 @@ public class EJBCompany implements EJBCompanyInterface {
         }
     }
 
+    /**
+     * Metodo de actualizacio de compañia
+     *
+     * @param company objeto del tipo Company
+     * @throws UpdateException si no se encuentra la compañia
+     */
     @Override
     public void updateCompany(Company company) throws UpdateException {
 
         try {
-            Query q= em.createQuery("update Company a set a.name:name, a.cif=:cif WHERE a.id=:id");
+            Query q = em.createQuery("update Company a set a.name:name, a.cif=:cif WHERE a.id=:id");
             q.setParameter("id", company.getId());
             q.setParameter("cif", company.getCif());
             q.setParameter("name", company.getName());
@@ -53,6 +66,13 @@ public class EJBCompany implements EJBCompanyInterface {
             throw new UpdateException(ex.getMessage());
         }
     }
+
+    /**
+     * Metodo que borra una compañia
+     *
+     * @param id Id de la comapañia
+     * @throws DeleteException si no se puede borrar la compañia
+     */
 
     @Override
     public void deleteCompany(int id) throws DeleteException {
@@ -66,6 +86,12 @@ public class EJBCompany implements EJBCompanyInterface {
         }
     }
 
+    /**
+     * metodo para obtener una lista de compañias
+     *
+     * @return lista de compañias
+     * @throws GetCollectionException si no hay compañia en la base de datos
+     */
     @Override
     public Set<Company> getCompanyList() throws GetCollectionException {
         List<Company> listCompany = null;
@@ -78,6 +104,13 @@ public class EJBCompany implements EJBCompanyInterface {
         return ret;
     }
 
+    /**
+     * Metodo para obtener una compañia
+     *
+     * @param id Id de la compañia
+     * @return objeto del tipo Company
+     * @throws SelectException si no se encuentra la compañia
+     */
     @Override
     public Company getCompanyProfile(int id) throws SelectException {
         Company ret = null;

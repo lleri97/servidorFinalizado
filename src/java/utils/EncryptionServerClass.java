@@ -21,6 +21,7 @@ import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
+import service.CompanyFacadeREST;
 
 /**
  *
@@ -32,11 +33,11 @@ public class EncryptionServerClass {
 
     private final static String CRYPTO_METHOD = "RSA";
     private final static String OPCION_RSA= "RSA/ECB/OAEPWithSHA1AndMGF1Padding";
-    //private final static String OPCION_RSA = "RSA/ECB/PKCS1Padding";
     private final static String PUBLIC_PATH = ResourceBundle.getBundle("files.KeysProperties").getString("public_key");
     private final static String PRIVATE_PATH = ResourceBundle.getBundle("files.KeysProperties").getString("private_key");
-    // private final static String PUBLIC_PATH_ = "C:\\FRAN\\Public.key";
-    //private final static String PRIVATE_PATH_ = "C:\\FRAN\\Private.key";
+        private static final Logger LOGGER = Logger.getLogger(CompanyFacadeREST.class.getPackage() + "." + CompanyFacadeREST.class.getName());
+
+
 
     /**
      * Cifra un texto con RSA, modo ECB y padding PKCS1Padding (asimétrica) y lo
@@ -48,6 +49,7 @@ public class EncryptionServerClass {
     public String encryptText(String mensaje) {
         byte[] encodedMessage = null;
         try {
+            LOGGER.info("Encriptando texto");
             // Clave pública
             InputStream in = null;
              byte[] publicKeyBytes = null;
@@ -55,18 +57,16 @@ public class EncryptionServerClass {
             publicKeyBytes = new byte[in.available()];
              in.read(publicKeyBytes);
              in.close();
-           // byte publicKeyBytes[] = fileReader("c:\\FRAN\\Public.key");
-
             KeyFactory keyFactory = KeyFactory.getInstance(CRYPTO_METHOD);
             X509EncodedKeySpec x509EncodedKeySpec = new X509EncodedKeySpec(publicKeyBytes);
             PublicKey publicKey = keyFactory.generatePublic(x509EncodedKeySpec);
-
             Cipher cipher = Cipher.getInstance(OPCION_RSA);
             cipher.init(Cipher.ENCRYPT_MODE, publicKey);
             encodedMessage = cipher.doFinal(mensaje.getBytes());
         } catch (Exception e) {
-            e.printStackTrace();
+            LOGGER.info("No se pudo encriptar el texto");
         }
+        LOGGER.info("Texto encriptado con exito");
         return toHexadecimal(encodedMessage);
     }
 
@@ -74,12 +74,13 @@ public class EncryptionServerClass {
      * Descifra un texto con RSA, modo ECB y padding PKCS1Padding (asimétrica) y
      * lo retorna
      *
-     * @param mensaje El mensaje a descifrar
+     * @param encryptedMessage El mensaje a descifrar
      * @return El mensaje descifrado
      */
     public static String decryptText(String encryptedMessage) {
         String message = null;
         try {
+            LOGGER.info("Desencrptando texto");
             InputStream in = null;
             byte[] privateKeyBytes = null;
             in = EncryptionServerClass.class.getClassLoader().getResourceAsStream(PRIVATE_PATH);
@@ -97,42 +98,44 @@ public class EncryptionServerClass {
             message = new String(messageInBytes);
             
         } catch (Exception ex) {
-            Logger.getLogger(EncryptionServerClass.class.getName()).log(Level.SEVERE, null, ex);
+            LOGGER.info("No se pudo desencriptar el texto");
         }
+        LOGGER.info("Texto desencriptado con exito");
         return message;
     }
 
     /**
      * Aplica SHA al texto pasado por parámetro
      *
-     * @param texto
+     * @param texto texto hasheado
+     * @return string
      */
     public String hashingText(String texto) {
         MessageDigest messageDigest = null;
         byte[] hash = null;
         String encoded = null;
         try {
+            LOGGER.info("Hasheando texto");
             messageDigest = MessageDigest.getInstance("SHA");
             byte[] dataBytes = texto.getBytes(); // texto a bytes
             messageDigest.update(dataBytes);// se introduce texto en bytes a resumir
             hash = messageDigest.digest();// se calcula el resumen
             encoded = Base64.getEncoder().encodeToString(hash);
 
-            System.out.println("Mensaje original: " + texto);
-            System.out.println("Número de Bytes: " + messageDigest.getDigestLength());
-            System.out.println("Algoritmo: " + messageDigest.getAlgorithm());
-            System.out.println("Mensaje Resumen: " + new String(hash));
-            System.out.println("Mensaje en Hexadecimal: " + toHexadecimal(hash));
-            System.out.println("Proveedor: " + messageDigest.getProvider().toString());
-            System.out.println("encoded: " + encoded);
         } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
+            LOGGER.info("Error al hashear el texto");
         }
+        LOGGER.info("texto hasheado exitosamente");
         return encoded;
     }
 
-    // Convierte Array de Bytes en hexadecimal
+   /**
+    * Metodo para pasar a exadecimal
+    * @param resumen byte array a transofrmar
+    * @return string transformado de byte array
+    */
     static String toHexadecimal(byte[] resumen) {
+        LOGGER.info("Transformando a hexadecimal");
         String HEX = "";
         for (int i = 0; i < resumen.length; i++) {
             String h = Integer.toHexString(resumen[i] & 0xFF);
@@ -141,6 +144,7 @@ public class EncryptionServerClass {
             }
             HEX += h;
         }
+        LOGGER.info("Transformacon exitosa");
         return HEX.toUpperCase();
     }
 
@@ -154,30 +158,45 @@ public class EncryptionServerClass {
         byte ret[] = null;
         File file = new File(path);
         try {
+            LOGGER.info("Leyendo arhivo");
             ret = Files.readAllBytes(file.toPath());
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.info("No se pudo leer el archivo");
         }
+        LOGGER.info("Archivo leido con exito");
         return ret;
     }
 
+    /**
+     * Transformacion de string a byte array
+     * @param s string a modificar
+     * @return  byte array del string modificado
+     */
     public static byte[] hexStringToByteArray(String s) {
+        LOGGER.info("Transformando string");
         int len = s.length();
         byte[] data = new byte[len / 2];
         for (int i = 0; i < len; i += 2) {
             data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
                     + Character.digit(s.charAt(i + 1), 16));
         }
+        LOGGER.info("Transformacion exitosa");
         return data;
     }
+        /**
+         * Metodo para recibir la clave publica
+         * @return la clave publica en hexadecimal
+         * @throws IOException  cuando no consigue transofrmar
+         */
         public static String getPublic() throws IOException{
+            LOGGER.info("Buscando clave publica ");
         InputStream in = null;
         byte[] publicKeyBytes = null;
         in = EncryptionServerClass.class.getClassLoader().getResourceAsStream(PUBLIC_PATH);
         publicKeyBytes = new byte[in.available()];
         in.read(publicKeyBytes);
         in.close();
-        
+        LOGGER.info("Clave publica encontrada con exito");
         return toHexadecimal(publicKeyBytes);
     }
 

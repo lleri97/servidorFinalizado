@@ -111,7 +111,7 @@ public class Department implements Serializable {
 
     /**
      *
-     * @return
+     * @return hash
      */
     @Override
     public int hashCode() {
@@ -122,8 +122,8 @@ public class Department implements Serializable {
 
     /**
      *
-     * @param object
-     * @return
+     * @param object tipo object
+     * @return booleano 
      */
     @Override
     public boolean equals(Object object) {
@@ -140,7 +140,7 @@ public class Department implements Serializable {
 
     /**
      *
-     * @return
+     * @return nueva entidad
      */
     @Override
     public String toString() {

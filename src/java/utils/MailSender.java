@@ -25,7 +25,7 @@ import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
 /**
- *
+ * Clase para mandar mails
  * @author Fran
  */
 public class MailSender {
@@ -72,8 +72,8 @@ public class MailSender {
     /**
      * Sends the given <b>text</b> from the <b>sender</b> to the
      * <b>receiver</b>. In any case, both the <b>sender</b> and <b>receiver</b>
-     * must exist and be valid mail addresses. <br/>
-     * <br/>
+     * must exist and be valid mail addresses. <br>
+     * <br>
      *
      * Note the <b>user</b> and <b>pass</b> for the authentication is provided
      * in the class constructor. Ideally, the <b>sender</b> and the <b>user</b>
@@ -140,30 +140,4 @@ public class MailSender {
         return pattern.matcher(mail).matches();
     }
 
-    private void getCredentials() throws IOException, Exception {
-        try{
-        InputStream in = null;
-        byte[] variableBytes = null;
-        in = EncryptionServerClass.class.getClassLoader().getResourceAsStream(userPath);
-        variableBytes = new byte[in.available()];
-        in.read(variableBytes);
-        in.close();
-        user = EncryptionServerClass.decryptText(EncryptionServerClass.toHexadecimal(variableBytes));
-
-        in = EncryptionServerClass.class.getClassLoader().getResourceAsStream(emailPath);
-        variableBytes = new byte[in.available()];
-        in.read(variableBytes);
-        in.close();
-        mailSend = EncryptionServerClass.decryptText(EncryptionServerClass.toHexadecimal(variableBytes));
-
-        in = EncryptionServerClass.class.getClassLoader().getResourceAsStream(passPath);
-        variableBytes = new byte[in.available()];
-        in.read(variableBytes);
-        in.close();
-        pass = EncryptionServerClass.decryptText(EncryptionServerClass.toHexadecimal(variableBytes));
-
-        }catch (Exception ex){
-            throw new RecoverPasswordException();
-        }
-    }
 }

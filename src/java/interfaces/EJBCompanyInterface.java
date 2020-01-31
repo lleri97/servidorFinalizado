@@ -23,14 +23,46 @@ import javax.ejb.Local;
 @Local
 public interface EJBCompanyInterface {
 
+    /**
+     * Metodo que crea una compañia
+     *
+     * @param company objeto del tipo Company
+     *
+     * @throws CreateException si no se puede crear
+     */
     public void createCompany(Company company) throws CreateException;
 
+    /**
+     * Metodo de actualizacio de compañia
+     *
+     * @param company objeto del tipo Company
+     * @throws UpdateException si no se encuentra la compañia
+     */
     public void updateCompany(Company company) throws UpdateException;
 
+    /**
+     * Metodo que borra una compañia
+     *
+     * @param id Id de la comapañia
+     * @throws DeleteException si no se puede borrar la compañia
+     */
     public void deleteCompany(int id) throws DeleteException;
 
+    /**
+     * Metodo para obtener una compañia
+     *
+     * @param id Id de la compañia
+     * @return objeto del tipo Company
+     * @throws SelectException si no se encuentra la compañia
+     */
     public Company getCompanyProfile(int id) throws SelectException;
 
+    /**
+     * metodo para obtener una lista de compañias
+     *
+     * @return lista de compañias
+     * @throws GetCollectionException si no hay compañia en la base de datos
+     */
     public Set<Company> getCompanyList() throws GetCollectionException;
 
 }
