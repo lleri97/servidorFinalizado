@@ -5,6 +5,7 @@
  */
 package utils;
 
+import exceptions.RecoverPasswordException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -86,7 +87,6 @@ public class MailSender {
      *
      */
     public void sendMail(String sender, String receiver, String subject, String text) throws MessagingException, Exception {
-        getCredentials();
         // Mail properties
         Properties properties = new Properties();
         properties.put("mail.smtp.auth", true);
@@ -106,7 +106,7 @@ public class MailSender {
 
         // MIME message to be sent
         Message message = new MimeMessage(session);
-        message.setFrom(new InternetAddress(mailSend)); // Ej: emisor@gmail.com
+        message.setFrom(new InternetAddress(emailPath)); // Ej: emisor@gmail.com
         message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(receiver)); // Ej: receptor@gmail.com
         message.setSubject(subject); // Asunto del mensaje
 
@@ -141,6 +141,7 @@ public class MailSender {
     }
 
     private void getCredentials() throws IOException, Exception {
+        try{
         InputStream in = null;
         byte[] variableBytes = null;
         in = EncryptionServerClass.class.getClassLoader().getResourceAsStream(userPath);
@@ -161,5 +162,8 @@ public class MailSender {
         in.close();
         pass = EncryptionServerClass.decryptText(EncryptionServerClass.toHexadecimal(variableBytes));
 
+        }catch (Exception ex){
+            throw new RecoverPasswordException();
+        }
     }
 }
