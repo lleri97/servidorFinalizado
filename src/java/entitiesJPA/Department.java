@@ -49,8 +49,8 @@ public class Department implements Serializable {
     /**
      * Companies collection
      */
-    @ManyToMany(mappedBy = "departments", fetch = FetchType.EAGER)
-    private Set<Company> companies;
+    @OneToMany(mappedBy = "department")
+    Set<CompanyDepartment> alta;
 
     /**
      * Areas collection
@@ -80,19 +80,12 @@ public class Department implements Serializable {
         this.name = name;
     }
 
-    /**
-     * @return the companies
-     */
-    @XmlTransient
-    public Set<Company> getCompanies() {
-        return companies;
+    public Set<CompanyDepartment> getAlta() {
+        return alta;
     }
 
-    /**
-     * @param companies the companies to set
-     */
-    public void setCompanies(Set<Company> companies) {
-        this.companies = companies;
+    public void setAlta(Set<CompanyDepartment> alta) {
+        this.alta = alta;
     }
 
     /**
@@ -123,7 +116,7 @@ public class Department implements Serializable {
     /**
      *
      * @param object tipo object
-     * @return booleano 
+     * @return booleano
      */
     @Override
     public boolean equals(Object object) {

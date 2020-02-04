@@ -7,7 +7,6 @@ package entitiesJPA;
 
 import java.io.Serializable;
 import java.util.Set;
-import java.util.LinkedHashSet;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -47,11 +46,8 @@ public class Company implements Serializable {
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "company", cascade = CascadeType.ALL)
     private Set<User> users;
 
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(name = "company_department", schema = "grupo5_database",
-            joinColumns = @JoinColumn(name = "id_company"),
-            inverseJoinColumns = @JoinColumn(name = "id_department"))
-    private Set<Department> departments;
+    @OneToMany(mappedBy = "company")
+    Set<CompanyDepartment> alta;
 
     public int getId() {
         return id;
@@ -129,18 +125,14 @@ public class Company implements Serializable {
         this.users = users;
     }
 
-    /**
-     * @return the departments
-     */
-    public Set<Department> getDepartments() {
-        return departments;
+    public Set<CompanyDepartment> getAlta() {
+        return alta;
     }
 
-    /**
-     * @param departments the departments to set
-     */
-    public void setDepartments(Set<Department> departments) {
-        this.departments = departments;
+    public void setAlta(Set<CompanyDepartment> alta) {
+        this.alta = alta;
     }
+
+   
 
 }
