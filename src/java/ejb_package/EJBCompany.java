@@ -56,7 +56,7 @@ public class EJBCompany implements EJBCompanyInterface {
     public void updateCompany(Company company) throws UpdateException {
 
         try {
-            Query q = em.createQuery("update Company a set a.name:name, a.cif=:cif WHERE a.id=:id");
+            Query q = em.createQuery("update Company a set a.name=:name, a.cif=:cif WHERE a.id=:id");
             q.setParameter("id", company.getId());
             q.setParameter("cif", company.getCif());
             q.setParameter("name", company.getName());
