@@ -50,7 +50,7 @@ public class CompanyFacadeREST {
      */
     @POST
     @Consumes({MediaType.APPLICATION_XML})
-    public void create(Company company) {
+    public void create(Company company) throws InternalServerErrorException{
         try {
             LOGGER.info("Iniciando la creacion de una compañia");
             ejb.createCompany(company);
@@ -67,7 +67,7 @@ public class CompanyFacadeREST {
      */
     @PUT
     @Consumes({MediaType.APPLICATION_XML})
-    public void edit(Company company) {
+    public void edit(Company company) throws InternalServerErrorException{
         try {
             LOGGER.info("Iniciando la modificacion de una compañia");
             ejb.updateCompany(company);
@@ -84,7 +84,7 @@ public class CompanyFacadeREST {
      */
     @DELETE
     @Path("{id}")
-    public void remove(@PathParam("id") Integer id) {
+    public void remove(@PathParam("id") Integer id) throws InternalServerErrorException{
         try {
             LOGGER.info("Deshabilitando usuarios de esta compañia");
             ejbUser.disabledUserByCompany(id);
@@ -97,7 +97,7 @@ public class CompanyFacadeREST {
             throw new InternalServerErrorException("ERROR a la hora de borrar la compañia");
         } catch (UpdateException ex) {
             LOGGER.warning("No se pudieron actualizar los usuarios de la compañia");
-            throw new InternalServerErrorException("ERROR en la modificaion de usuarios");
+            throw new InternalServerErrorException("ERROR en la modificacion de usuarios");
         }
     }
 
