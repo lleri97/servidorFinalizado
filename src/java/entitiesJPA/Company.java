@@ -18,6 +18,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -28,10 +29,22 @@ import javax.xml.bind.annotation.XmlTransient;
  *
  * @author Ruben
  */
+@NamedQueries({
+    @NamedQuery(
+            name = "findAllCompanies",
+            query = "SELECT a FROM Company a ORDER BY a.id")
+    ,
+    @NamedQuery(
+            name = "deleteCompany",
+            query = "delete from Company a where a.id=:id")
+    ,
+    @NamedQuery(
+            name = "updateCompany",
+            query = "update Company a set a.name=:name, a.cif=:cif WHERE a.id=:id")
+})
+
 @Entity
 @Table(name = "company", schema = "grupo5_database")
-@NamedQuery(name = "findAllCompanies",
-        query = "SELECT a FROM Company a ORDER BY a.id")
 @XmlRootElement
 public class Company implements Serializable {
 

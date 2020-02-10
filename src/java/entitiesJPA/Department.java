@@ -15,6 +15,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.persistence.NamedQueries;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -26,9 +27,16 @@ import javax.persistence.OneToMany;
  *
  * @author Yeray
  */
-@NamedQuery(
-        name = "findAllDepartments",
-        query = "SELECT a FROM Department a ORDER BY a.id")
+@NamedQueries({
+    @NamedQuery(
+            name = "findAllDepartments",
+            query = "SELECT a FROM Department a ORDER BY a.id")
+    ,
+    @NamedQuery(
+            name = "deleteDepartment",
+            query = "delete from Department a where a.id=:id")
+})
+
 @Entity
 @Table(name = "department", schema = "grupo5_database")
 @XmlRootElement
@@ -123,7 +131,7 @@ public class Department implements Serializable {
     /**
      *
      * @param object tipo object
-     * @return booleano 
+     * @return booleano
      */
     @Override
     public boolean equals(Object object) {

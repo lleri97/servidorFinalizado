@@ -62,8 +62,7 @@ public class EJBDepartment implements EJBDepartmentInterface {
      */
     public void deleteDepartment(int id) throws DeleteException {
         try {
-            Query q1 = em.createQuery("delete from Department a where a.id=:id");
-            q1.setParameter("id", id);
+            Query q1 = em.createNamedQuery("deleteDepartment").setParameter("id", id);
             q1.executeUpdate();
             em.flush();
         } catch (Exception ex) {

@@ -56,10 +56,9 @@ public class EJBCompany implements EJBCompanyInterface {
     public void updateCompany(Company company) throws UpdateException {
 
         try {
-            Query q = em.createQuery("update Company a set a.name=:name, a.cif=:cif WHERE a.id=:id");
-            q.setParameter("id", company.getId());
-            q.setParameter("cif", company.getCif());
-            q.setParameter("name", company.getName());
+            Query q = em.createNamedQuery("updateCompany").setParameter("name", company.getName())
+                                                          .setParameter("cif", company.getCif())
+                                                          .setParameter("id", company.getId());
             q.executeUpdate();
             em.flush();
         } catch (Exception ex) {
@@ -77,8 +76,7 @@ public class EJBCompany implements EJBCompanyInterface {
     @Override
     public void deleteCompany(int id) throws DeleteException {
         try {
-            Query q1 = em.createQuery("delete from Company a where a.id=:id");
-            q1.setParameter("id", id);
+            Query q1 = em.createNamedQuery("deleteCompany").setParameter("id", id);
             q1.executeUpdate();
             em.flush();
         } catch (Exception ex) {
